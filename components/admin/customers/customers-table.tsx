@@ -94,13 +94,13 @@ export default function CustomersTable({ setStats }: any) {
           setStats({
             totalCustomers: transformedCustomers.length,
             newCustomers: transformedCustomers.filter(
-              (customer) =>
+              (customer: any) =>
                 new Date(customer.joinDate).getTime() >
                 Date.now() - 30 * 24 * 60 * 60 * 1000
             ).length,
             avgOrderValue:
               transformedCustomers.reduce(
-                (sum, customer) => sum + customer.spent,
+                (sum: number, customer: any) => sum + customer.spent,
                 0
               ) / Math.max(transformedCustomers.length, 1),
           });

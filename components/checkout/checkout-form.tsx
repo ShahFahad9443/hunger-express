@@ -14,6 +14,7 @@ import { Loader2, CreditCard, Banknote } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { toast } from "react-toastify";
 import axios from "axios";
+import Image from "next/image";
 
 interface Branch {
   id: string;
@@ -247,7 +248,7 @@ export default function CheckoutForm({
                     <div className="flex items-center space-x-2 border p-4 rounded-md">
                       <RadioGroupItem value="easypaisa" id="easypaisa" />
                       <Label htmlFor="easypaisa" className="flex items-center">
-                        <img
+                        <Image
                           src="/placeholder.svg?height=30&width=80&text=Easypaisa"
                           alt="Easypaisa"
                           className="h-4 w-8 mr-2"
@@ -258,7 +259,7 @@ export default function CheckoutForm({
                     <div className="flex items-center space-x-2 border p-4 rounded-md">
                       <RadioGroupItem value="jazzcash" id="jazzcash" />
                       <Label htmlFor="jazzcash" className="flex items-center">
-                        <img
+                        <Image
                           src="/placeholder.svg?height=30&width=80&text=JazzCash"
                           alt="JazzCash"
                           className="h-4 w-8 mr-2"

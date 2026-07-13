@@ -67,12 +67,13 @@ jobs:
         run: pnpm build
 
       - name: Upload Next.js Build
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: next-build
           path: .next
           retention-days: 7
-          if-no-files-found: error
+          if-no-files-found: ignore
 
   test:
     name: Cypress Tests

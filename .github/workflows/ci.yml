@@ -99,12 +99,15 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts=false
+      
+      - name: Install Cypress Binary
+        run: pnpm exec cypress install  
 
       - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v6 
         with:
-          install: true
+          install: false
           build: pnpm build
           start: pnpm start
           wait-on: http://localhost:3000

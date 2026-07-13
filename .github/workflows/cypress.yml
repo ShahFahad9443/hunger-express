@@ -13,6 +13,9 @@ jobs:
   cypress-run:
     runs-on: ubuntu-latest
 
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
     steps:
       - uses:  actions/checkout@v4
 

@@ -2,286 +2,194 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, pipeline, develop ]
+    branches:
+      - main
+      - develop
+      - feature/**
   pull_request:
-    branches: [ main, pipeline, develop ]
+    branches:
+      - main
+      - develop
 
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm lint
 
   build:
     name: Build
     runs-on: ubuntu-latest
     needs: lint
+
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build application
-        run: npm run build
+        run: pnpm build
 
-      - name: Upload build artifacts
+      - name: Upload Next.js Build
         uses: actions/upload-artifact@v4
         with:
-          name: build-files
-          path: dist/
+          name: next-build
+          path: .next
           retention-days: 7
           if-no-files-found: error
 
   test:
-    name: Playwright Tests
+    name: Cypress Tests
     runs-on: ubuntu-latest
-    needs: lint
+    needs: build
+
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: npm run test
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-          if-no-files-found: ignore
-
-      - name: Upload test videos
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-videos
-          path: test-results/
-          retention-days: 7
-          if-no-files-found: ignore
-
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 22
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Build application
-        run: npm run build
-        env:
-          NODE_ENV: production
-
-      - name: Download test results
-        uses: actions/download-artifact@v4
+      - name: Run Cypress Tests
+        uses: cypress-io/github-action@v6
         with:
-          name: playwright-report
-          path: playwright-report-temp/
+          install: false
+          build: pnpm build
+          start: pnpm start
+          wait-on: http://localhost:3000
+          wait-on-timeout: 180
+          browser: chrome
+
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
           if-no-files-found: ignore
 
-      - name: Copy test results to dist
+      - name: Upload Videos
         if: always()
-        run: |
-          echo "Checking for test results..."
-          if [ -d "playwright-report-temp" ] && [ "$(ls -A playwright-report-temp 2>/dev/null)" ]; then
-            echo "Test results found, copying to dist/test-results/"
-            mkdir -p dist/test-results
-            # Copy all files from the downloaded artifact
-            cp -r playwright-report-temp/* dist/test-results/ 2>/dev/null || true
-            # List what was copied
-            echo "Contents of dist/test-results/:"
-            ls -la dist/test-results/ || echo "Directory is empty"
-            # Ensure index.html exists
-            if [ ! -f "dist/test-results/index.html" ]; then
-              echo "Creating fallback index.html"
-              printf '%s\n' \
-                '<!DOCTYPE html>' \
-                '<html>' \
-                '<head>' \
-                '  <title>Test Results - Hunger Express</title>' \
-                '  <style>' \
-                '    body { font-family: Arial, sans-serif; padding: 20px; }' \
-                '    .error { color: #d32f2f; }' \
-                '  </style>' \
-                '</head>' \
-                '<body>' \
-                '  <h1>Test Results</h1>' \
-                '  <p class="error">No test results available. Tests may not have run or completed successfully.</p>' \
-                '  <p>Check the GitHub Actions workflow for test execution details.</p>' \
-                '</body>' \
-                '</html>' > dist/test-results/index.html
-            fi
-          else
-            echo "No test results artifact found, creating placeholder"
-            mkdir -p dist/test-results
-            printf '%s\n' \
-              '<!DOCTYPE html>' \
-              '<html>' \
-              '<head>' \
-              '  <title>Test Results - Hunger Express</title>' \
-              '  <style>' \
-              '    body { font-family: Arial, sans-serif; padding: 20px; }' \
-              '    .info { color: #1976d2; }' \
-              '  </style>' \
-              '</head>' \
-              '<body>' \
-              '  <h1>Test Results</h1>' \
-              '  <p class="info">Test results are not available for this deployment.</p>' \
-              '  <p>This may happen if:</p>' \
-              '  <ul>' \
-              '    <li>Tests haven'\''t run yet</li>' \
-              '    <li>Tests failed before generating a report</li>' \
-              '    <li>Test results artifact was not created</li>' \
-              '  </ul>' \
-              '  <p>Check the GitHub Actions workflow logs for more information.</p>' \
-              '</body>' \
-              '</html>' > dist/test-results/index.html
-          fi
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          path: './dist'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
 
   notify-slack:
     name: Notify Slack on Failure
     runs-on: ubuntu-latest
-    needs: [lint, build, test, deploy]
-    if: always() && (needs.lint.result == 'failure' || needs.build.result == 'failure' || needs.test.result == 'failure' || (needs.deploy.result == 'failure' && needs.deploy.result != 'skipped'))
+    needs:
+      - lint
+      - build
+      - test
+
+    if: always() && (
+      needs.lint.result == 'failure' ||
+      needs.build.result == 'failure' ||
+      needs.test.result == 'failure'
+      )
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Determine failed jobs
-        id: failed-jobs
+      - name: Send Slack Notification
         run: |
-          FAILED_JOBS=""
-          if [ "${{ needs.lint.result }}" == "failure" ]; then
-            FAILED_JOBS="${FAILED_JOBS}• Lint\n"
-          fi
-          if [ "${{ needs.build.result }}" == "failure" ]; then
-            FAILED_JOBS="${FAILED_JOBS}• Build\n"
-          fi
-          if [ "${{ needs.test.result }}" == "failure" ]; then
-            FAILED_JOBS="${FAILED_JOBS}• Test\n"
-          fi
-          if [ "${{ needs.deploy.result }}" == "failure" ]; then
-            FAILED_JOBS="${FAILED_JOBS}• Deploy\n"
-          fi
-          echo "failed_jobs<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$FAILED_JOBS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          FAILED=""
+          [ "${{ needs.lint.result }}" = "failure" ] && FAILED="${FAILED}• Lint\n"
+          [ "${{ needs.build.result }}" = "failure" ] && FAILED="${FAILED}• Build\n"
+          [ "${{ needs.test.result }}" = "failure" ] && FAILED="${FAILED}• Cypress Tests\n"
 
-      - name: Send Slack notification
-        run: |
-          FAILED_JOBS_TEXT="${{ steps.failed-jobs.outputs.failed_jobs }}"
           cat <<EOF | curl -X POST -H 'Content-type: application/json' -d @- "${{ secrets.SLACK_WEBHOOK_URL }}"
           {
-            "text": "❌ CI Pipeline Failed - ${{ github.repository }}",
-            "blocks": [
+            "text":"❌ Hunger Express CI Failed",
+            "blocks":[
               {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "❌ CI Pipeline Failed"
+                "type":"header",
+                "text":{
+                  "type":"plain_text",
+                  "text":"❌ Hunger Express CI Failed"
                 }
               },
               {
-                "type": "section",
-                "fields": [
+                "type":"section",
+                "fields":[
                   {
-                    "type": "mrkdwn",
-                    "text": "*Repository:*\n${{ github.repository }}"
+                    "type":"mrkdwn",
+                    "text":"*Repository:*\n${{ github.repository }}"
                   },
                   {
-                    "type": "mrkdwn",
-                    "text": "*Branch:*\n${{ github.ref_name }}"
+                    "type":"mrkdwn",
+                    "text":"*Branch:*\n${{ github.ref_name }}"
                   },
                   {
-                    "type": "mrkdwn",
-                    "text": "*Workflow:*\n${{ github.workflow }}"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Actor:*\n${{ github.actor }}"
+                    "type":"mrkdwn",
+                    "text":"*Actor:*\n${{ github.actor }}"
                   }
                 ]
               },
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*Failed Jobs:*\n${FAILED_JOBS_TEXT}"
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text":"*Failed Jobs:*\n${FAILED}"
                 }
               },
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|🔍 View Workflow Run>"
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text":"<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
                 }
               }
             ]
           }
           EOF
-

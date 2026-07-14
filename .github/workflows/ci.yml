@@ -141,12 +141,7 @@ jobs:
       - build
       - test
 
-    if: always() && (
-      needs.lint.result == 'failure' ||
-      needs.build.result == 'failure' ||
-      needs.test.result == 'failure'
-      )
-
+    if: always()
     steps:
       - name: Send Slack Notification
         run: |
@@ -195,7 +190,7 @@ jobs:
                 "type":"section",
                 "text":{
                   "type":"mrkdwn",
-                  "text":"text":"${BODY}"
+                  "text":"${BODY}"
                 }
               },
               {

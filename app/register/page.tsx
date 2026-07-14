@@ -4,11 +4,20 @@ import Footer from "@/components/layout/footer";
 import RegisterForm from "@/components/auth/register-form";
 import { useCurrentUser } from "@/hooks/currentUser";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function RegisterPage() {
   const { user, loading } = useCurrentUser();
+  const router = useRouter();
 
-  if (loading) {
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  if (loading || user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-amber-500" />
@@ -17,12 +26,6 @@ export default function RegisterPage() {
     );
   }
 
-  if (user) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-    return null;
-  }
   return (
     <main className="min-h-screen">
       <Navbar />

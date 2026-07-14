@@ -25,11 +25,28 @@ export function ImageUpload({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleRemoveImage = () => {
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl("");
+    setSelectedFile(null);
+
+    onImageChange("", undefined);
+
+    if (onFileSelect) {
+      onFileSelect(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   useEffect(() => {
     if (resetTrigger) {
-      handleRemoveImage();
+      queueMicrotask(() => handleRemoveImage())
     }
-  }, [resetTrigger]);
+  }, [resetTrigger])
 
   const createPreviewUrl = (file: File): string => {
     return URL.createObjectURL(file);
@@ -101,24 +118,6 @@ export function ImageUpload({
 
   const handleDragLeave = () => {
     setIsDragging(false);
-  };
-
-  const handleRemoveImage = () => {
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl("");
-    setSelectedFile(null);
-
-    // Pass empty string and undefined file to parent
-    onImageChange("", undefined);
-
-    if (onFileSelect) {
-      onFileSelect(null);
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   };
 
   const handleUploadClick = () => {

@@ -79,10 +79,18 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/components/cart/cart-provider";
+
+function useMounted() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+}
 
 interface OrderSummaryProps {
   orderType: "delivery" | "pickup";
@@ -90,12 +98,7 @@ interface OrderSummaryProps {
 
 export default function OrderSummary({ orderType }: OrderSummaryProps) {
   const { cartItems, totalPrice } = useCart();
-  const [mounted, setMounted] = useState(false);
-
-  // Handle hydration mismatch
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   if (!mounted) return null;
 

@@ -4,24 +4,26 @@ import Footer from "@/components/layout/footer";
 import LoginForm from "@/components/auth/login-form";
 import { useCurrentUser } from "@/hooks/currentUser";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const { user, loading } = useCurrentUser();
+  const router = useRouter();
 
-  if (loading) {
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  if (loading || user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-amber-500" />
         <span className="ml-2 text-lg text-gray-700">Loading...</span>
       </div>
     );
-  }
-
-  if (user) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-    return null;
   }
 
   return (

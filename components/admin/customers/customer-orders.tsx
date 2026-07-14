@@ -426,7 +426,7 @@ export default function CustomerOrders({
     generatePDF(order, customer);
   };
 
-  const OrderDetailModal = () => (
+  const orderDetailModal = (
     <Dialog open={orderDetailDialog} onOpenChange={setOrderDetailDialog}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -832,7 +832,7 @@ export default function CustomerOrders({
           </div>
         </CardContent>
       </Card>
-      <OrderDetailModal />
+      {orderDetailModal}
     </>
   );
 }

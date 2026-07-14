@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, useMemo } from "react"
 
 export type CartItem = {
   id: string
@@ -23,28 +23,32 @@ type CartContextType = {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [totalPrice, setTotalPrice] = useState(0)
-
-  // Load cart from localStorage on initial render
-  useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart))
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error)
-      }
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") {
+      return []
     }
-  }, [])
+
+    const savedCart = localStorage.getItem("cart")
+    if (!savedCart) {
+      return []
+    }
+
+    try {
+      return JSON.parse(savedCart) as CartItem[]
+    } catch (error) {
+      console.error("Failed to parse cart from localStorage:", error)
+      return []
+    }
+  })
+
+  const totalPrice = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [cartItems]
+  )
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems))
-
-    // Calculate total price
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-    setTotalPrice(total)
   }, [cartItems])
 
   const addToCart = (item: CartItem) => {

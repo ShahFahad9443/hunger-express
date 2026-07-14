@@ -49,7 +49,7 @@ export default function TestimonialsSection() {
             What Our Customers Say
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Don't just take our word for it - hear from our valued customers
+            Don&apos;t just take our word for it - hear from our valued customers
             about their Hunger Express experience
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function TestimonialsSection() {
                     ))}
                   </div>
                   <p className="text-gray-700 italic mb-6 flex-grow">
-                    "{testimonial.content}"
+                    &quot;{testimonial.content}&quot;
                   </p>
                   <div className="mt-auto flex items-center">
                     <div className="h-12 w-12 rounded-full overflow-hidden mr-3">

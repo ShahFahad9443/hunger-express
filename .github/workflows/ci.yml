@@ -6,10 +6,13 @@ on:
       - main
       - develop
       - feature/**
+      - fix/typescript-dashboard-errors/**
   pull_request:
     branches:
       - main
       - develop
+      - feature/**
+      - fix/typescript-dashboard-errors/**
 
 jobs:
   lint:

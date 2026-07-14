@@ -155,15 +155,23 @@ jobs:
           [ "${{ needs.build.result }}" = "failure" ] && FAILED="${FAILED}• Build\n"
           [ "${{ needs.test.result }}" = "failure" ] && FAILED="${FAILED}• Cypress Tests\n"
 
+          if [ -z "$FAILED" ]; then
+          TITLE="✅ Hunger Express CI Passed"
+          BODY="✅ All jobs passed successfully."
+          else
+          TITLE="❌ Hunger Express CI Failed"
+          BODY="*Failed Jobs:*\n${FAILED}"
+          fi
+
           cat <<EOF | curl -X POST -H 'Content-type: application/json' -d @- "${{ secrets.SLACK_WEBHOOK_URL }}"
           {
-            "text":"❌ Hunger Express CI Failed",
+            "text":"${TITLE}",
             "blocks":[
               {
                 "type":"header",
                 "text":{
                   "type":"plain_text",
-                  "text":"❌ Hunger Express CI Failed"
+                  "text":"${TITLE}"
                 }
               },
               {
@@ -187,7 +195,7 @@ jobs:
                 "type":"section",
                 "text":{
                   "type":"mrkdwn",
-                  "text":"*Failed Jobs:*\n${FAILED}"
+                  "text":"text":"${BODY}"
                 }
               },
               {

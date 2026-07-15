@@ -13,7 +13,7 @@ import { defineConfig } from "cypress";
 
 export default defineConfig({
   e2e: {
-    baseUrl: "http://localhost:3000",
+    baseUrl: 'https://hunger-express-nu.vercel.app',
 
     setupNodeEvents(on, config) {
       return config;

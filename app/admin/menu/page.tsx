@@ -10,7 +10,7 @@ export default function MenuManagementPage() {
           Menu Management
         </h1>
         <p className="text-muted-foreground text-lg">
-          Add, edit, and manage your cafe's menu items and categories
+          Add, edit, and manage your cafe&apos;s menu items and categories
         </p>
       </div>
 

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Search, Calendar, User, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 // Sample blog data
 const blogPosts = [
@@ -55,7 +56,7 @@ const blogPosts = [
   {
     id: "blog5",
     title: "Sustainable Practices at Hunger Express",
-    excerpt: "Learn about our commitment to sustainability and the eco-friendly practices we've implemented.",
+    excerpt: "Learn about our commitment to sustainability and the eco-friendly practices we&apos;ve implemented.",
     date: "March 5, 2023",
     author: "Shah Fahad",
     category: "Sustainability",
@@ -164,7 +165,7 @@ export default function BlogGrid() {
             <motion.div key={post.id} variants={itemVariants}>
               <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="h-48 overflow-hidden">
-                  <img
+                  <Image
                     src={post.image || "/placeholder.svg"}
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"

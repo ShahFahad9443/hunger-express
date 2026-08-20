@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { Trash2, Plus, Minus, ShoppingBag } from "lucide-react"
 import { useCart } from "@/components/cart/cart-provider"
 import { useState } from "react"
+import Image from "next/image"
 
 interface CartDrawerProps {
   open: boolean
@@ -49,7 +50,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div key={item.id} className="mb-4">
                   <div className="flex items-start gap-4">
                     <div className="h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
-                      <img
+                      <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
                         className="h-full w-full object-cover"

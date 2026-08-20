@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 // Sample related posts data
 const relatedPosts = [
@@ -76,7 +77,7 @@ export default function RelatedPosts({ currentSlug }: RelatedPostsProps) {
           <Link href={`/blog/${post.slug}`}>
             <Card className="overflow-hidden hover:shadow-md transition-shadow duration-300 h-full">
               <div className="h-48 overflow-hidden">
-                <img
+                <Image
                   src={post.image || "/placeholder.svg"}
                   alt={post.title}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"

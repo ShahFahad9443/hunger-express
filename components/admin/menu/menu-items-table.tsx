@@ -46,6 +46,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Image from "next/image";
 
 type MenuItem = {
   _id: string;
@@ -490,7 +491,7 @@ export function MenuItemsTable() {
                 filteredItems.map((item) => (
                   <TableRow key={item._id} className="hover:bg-gray-50">
                     <TableCell>
-                      <img
+                      <Image
                         src={
                           item.image || "/placeholder.svg?height=80&width=80"
                         }

@@ -1,0 +1,199 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/**
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint || true
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: lint
+
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Upload Next.js Build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+          retention-days: 7
+          if-no-files-found: ignore
+
+  test:
+    name: Cypress Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts=false
+      
+      - name: Install Cypress Binary
+        run: pnpm exec cypress install  
+
+      - name: Run Cypress Tests
+        uses: cypress-io/github-action@v6 
+        with:
+          install: false
+          build: pnpm build
+          start: pnpm start
+          wait-on: http://localhost:3000
+          wait-on-timeout: 180
+          browser: chrome
+
+      - name: Upload Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+
+      - name: Upload Videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
+
+  notify-slack:
+    name: Notify Slack on Failure
+    runs-on: ubuntu-latest
+    needs:
+      - lint
+      - build
+      - test
+
+    if: always() && (
+      needs.lint.result == 'failure' ||
+      needs.build.result == 'failure' ||
+      needs.test.result == 'failure'
+      )
+
+    steps:
+      - name: Send Slack Notification
+        run: |
+          FAILED=""
+          [ "${{ needs.lint.result }}" = "failure" ] && FAILED="${FAILED}• Lint\n"
+          [ "${{ needs.build.result }}" = "failure" ] && FAILED="${FAILED}• Build\n"
+          [ "${{ needs.test.result }}" = "failure" ] && FAILED="${FAILED}• Cypress Tests\n"
+
+          cat <<EOF | curl -X POST -H 'Content-type: application/json' -d @- "${{ secrets.SLACK_WEBHOOK_URL }}"
+          {
+            "text":"❌ Hunger Express CI Failed",
+            "blocks":[
+              {
+                "type":"header",
+                "text":{
+                  "type":"plain_text",
+                  "text":"❌ Hunger Express CI Failed"
+                }
+              },
+              {
+                "type":"section",
+                "fields":[
+                  {
+                    "type":"mrkdwn",
+                    "text":"*Repository:*\n${{ github.repository }}"
+                  },
+                  {
+                    "type":"mrkdwn",
+                    "text":"*Branch:*\n${{ github.ref_name }}"
+                  },
+                  {
+                    "type":"mrkdwn",
+                    "text":"*Actor:*\n${{ github.actor }}"
+                  }
+                ]
+              },
+              {
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text":"*Failed Jobs:*\n${FAILED}"
+                }
+              },
+              {
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text":"<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+                }
+              }
+            ]
+          }
+          EOF

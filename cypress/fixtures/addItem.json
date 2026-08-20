@@ -1,0 +1,10 @@
+
+
+{
+  "name": "Mushroom & Swiss Angus",
+  "description": "100% Angus beef, mushroom sauce, Swiss cheese.",
+  "price": "1800",
+  "category": "Snacks",
+  "available": true,
+  "image": "wallpaper.jpeg"
+}

@@ -20,8 +20,8 @@ export default function NotFound() {
         </h1>
 
         <p className="text-lg text-amber-700 mb-8">
-          Oops! It seems the page you're looking for has been whisked away.
-          Perhaps it's being prepared in our kitchen?
+          Oops! It seems the page you&apos;re looking for has been whisked away.
+          Perhaps it&apos;s being prepared in our kitchen?
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

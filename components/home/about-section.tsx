@@ -47,7 +47,7 @@ export default function AboutSection() {
               enjoy exceptional coffee and food.
             </p>
             <p className="text-gray-700 mb-6">
-              Since opening our doors in 2018, we've been committed to sourcing
+              Since opening our doors in 2018, we&apos;ve been committed to sourcing
               the finest ingredients, supporting local producers, and crafting
               each item on our menu with care and attention to detail.
             </p>

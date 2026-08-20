@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type React from "react";
 import {
   Coffee,
@@ -496,7 +496,11 @@ export default function ChalletCafeDashboard() {
     name: "",
     email: "",
   });
-  const [hasChanges, setHasChanges] = useState(false);
+  const hasChanges = useMemo(
+    () =>
+      formData.name !== originalData.name || selectedImage !== null,
+    [formData, originalData, selectedImage]
+  );
   const { user, loading } = useCurrentUser();
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -514,40 +518,48 @@ export default function ChalletCafeDashboard() {
   const [nameError, setNameError] = useState("");
 
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    queueMicrotask(() => {
       const userData = {
         name: user.name || "",
         email: user.email || "",
       };
       setFormData(userData);
       setOriginalData(userData);
-    }
+    });
   }, [user]);
 
   useEffect(() => {
-    const nameChanged = formData.name !== originalData.name;
-    const imageChanged = selectedImage !== null;
-    setHasChanges(nameChanged || imageChanged);
-  }, [formData, originalData, selectedImage]);
-
-  useEffect(() => {
     if (!user) return;
-    try {
-      setIsLoading(true);
-      const fetchOrders = async () => {
+
+    let cancelled = false;
+
+    const fetchOrders = async () => {
+      try {
         const response = await axios.get(`/api/orders?userId=${user._id}`);
-        if (response.status === 200) {
+        if (!cancelled && response.status === 200) {
           setOrders(response.data);
-        } else {
+        } else if (!cancelled) {
           console.error("Failed to fetch orders");
         }
-      };
-      fetchOrders();
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setIsLoading(false);
-    }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Error fetching orders:", error);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    queueMicrotask(() => setIsLoading(true));
+    fetchOrders();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const validateFullName = (name: string): string => {
@@ -746,7 +758,6 @@ export default function ChalletCafeDashboard() {
         setSelectedImage(null);
         setImagePreview(null);
         setIsEditMode(false);
-        setHasChanges(false);
         setNameError("");
         window.location.reload();
       } else {
@@ -763,7 +774,6 @@ export default function ChalletCafeDashboard() {
     setSelectedImage(null);
     setImagePreview(null);
     setIsEditMode(false);
-    setHasChanges(false);
     setNameError("");
   };
 

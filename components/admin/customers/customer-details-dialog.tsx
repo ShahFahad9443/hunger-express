@@ -584,7 +584,7 @@ export default function CustomerDetailsDialog({
                     <CardHeader>
                       <CardTitle>Customer Analytics</CardTitle>
                       <CardDescription>
-                        Detailed insights about this customer's behavior
+                        Detailed insights about this customer&apos;s behavior
                       </CardDescription>
                     </CardHeader>
                     <CardContent>

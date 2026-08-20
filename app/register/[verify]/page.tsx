@@ -6,6 +6,7 @@ import { useState } from "react";
 import axios from "axios";
 import { generateOTP } from "@/lib/otp";
 import { useCurrentUser } from "@/hooks/currentUser";
+import { useEffect } from "react";
 
 export default function VerifyPage() {
   const [otp, setOtp] = useState("");
@@ -14,7 +15,20 @@ export default function VerifyPage() {
   const searchparams = useSearchParams();
   const email = searchparams.get("email");
   const { user, loading: isLoading } = useCurrentUser();
-  if (isLoading) {
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    if (!email) {
+      router.push("/register");
+    }
+  }, [email, router]);
+
+  if (isLoading || user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-amber-500" />
@@ -23,15 +37,8 @@ export default function VerifyPage() {
     );
   }
 
-  if (user) {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-    return null;
-  }
-
   if (!email) {
-    router.push("/register");
+    return null;
   }
 
   const handleVerify = async () => {
@@ -227,7 +234,7 @@ export default function VerifyPage() {
           </form>
           <div className="text-center text-sm text-gray-500 mt-4">
             <p>
-              Didn't receive the OTP?{" "}
+              Didn&apos;t receive the OTP?{" "}
               <button
                 onClick={resend}
                 className="text-blue-500 hover:underline"

@@ -438,7 +438,7 @@ export function MenuItemsTable() {
           <div>
             <CardTitle className="text-xl font-semibold">Menu Items</CardTitle>
             <CardDescription className="text-base mt-1">
-              Manage your cafe's menu items and availability
+              Manage your cafe&apos;s menu items and availability
             </CardDescription>
           </div>
           <div className="flex gap-2">

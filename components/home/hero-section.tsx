@@ -3,16 +3,9 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
   return (
     <section className="relative h-[700px] flex items-center overflow-hidden hero-pattern">
       <div
@@ -27,7 +20,7 @@ export default function HeroSection() {
       <div className="container mx-auto relative z-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="max-w-3xl"
         >
@@ -41,7 +34,7 @@ export default function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
               <Link href="/menu">
@@ -55,7 +48,7 @@ export default function HeroSection() {
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <Link href="/about">

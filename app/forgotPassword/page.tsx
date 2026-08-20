@@ -365,7 +365,7 @@ export default function ForgotPasswordPage() {
                 </motion.div>
                 <CardTitle className="text-primary">Forgot Password?</CardTitle>
                 <CardDescription>
-                  Enter your email address and we'll send you OTP to reset your
+                  Enter your email address and we&apos;ll send you OTP to reset your
                   password
                 </CardDescription>
               </CardHeader>
@@ -508,7 +508,7 @@ export default function ForgotPasswordPage() {
                   className="text-center space-y-4 mt-6"
                 >
                   <p className="text-sm text-muted-foreground">
-                    Didn't receive the email? Check your spam folder or try
+                    Didn&apos;t receive the email? Check your spam folder or try
                     again.
                   </p>
                   <Button

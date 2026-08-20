@@ -24,13 +24,27 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState({});
+  interface DashboardData {
+    totalOrders: number;
+    totalCustomers: number;
+    totalRevenue: number;
+    totalPendingOrders: number;
+    orders: any[];
+  }
+  const [data, setData] = useState<DashboardData>({
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalRevenue: 0,
+    totalPendingOrders: 0,
+    orders: [],
+  });
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     try {
-      setLoading(true);
+     
       const fetchData = async () => {
-        const response = await axios.get("/api/admin/dashboard");
+        setLoading(true);
+        const response = await axios.get("/api/admin/dashboard"); 
         if (response.status === 200) {
           setData(response.data);
         } else {
@@ -67,7 +81,7 @@ export default function AdminDashboardPage() {
             Hunger Express Overview
           </h1>
           <p className="text-muted-foreground text-lg">
-            Welcome back! Here's what's happening with your cafe today.
+            Welcome back! Here&apos;s what&apos;s happening with your cafe today.
           </p>
         </div>
         <Link href="/admin/orders">

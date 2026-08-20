@@ -236,7 +236,7 @@ export default function OrderConfirmationContent() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Order Not Found</h1>
           <p className="text-gray-600 mb-4">
-            We couldn't find your order. Please check your order ID and try
+            We couldn&apos;t find your order. Please check your order ID and try
             again.
           </p>
           <Link href="/">
@@ -288,7 +288,7 @@ export default function OrderConfirmationContent() {
               </h1>
               <p className="text-gray-600 mb-2">
                 Thank you for your {isDelivery ? "delivery" : "pickup"} order.
-                We've received your order and will begin processing it right
+                We&apos;ve received your order and will begin processing it right
                 away.
               </p>
               <p className="text-primary font-medium">
@@ -412,7 +412,7 @@ export default function OrderConfirmationContent() {
                   <li>
                     • Mention your Order ID: <strong>{item.orderId}</strong>
                   </li>
-                  <li>• We'll call you when your order is ready for pickup</li>
+                  <li>• We&apos;ll call you when your order is ready for pickup</li>
                   <li>
                     • Orders are held for 2 hours after ready notification
                   </li>

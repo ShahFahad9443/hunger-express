@@ -450,7 +450,7 @@ export default function AdminOrdersFilter({
           <div className="mt-4 flex flex-wrap gap-2">
             {search && (
               <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center">
-                Search: "{search}"
+                Search: &quot;{search}&quot;
                 <button
                   onClick={() => handleSearchChange("")}
                   className="ml-2 text-blue-600 hover:text-blue-800"

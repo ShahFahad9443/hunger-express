@@ -36,7 +36,7 @@ export default function AboutPage() {
                 <p className="text-gray-700 mb-4">
                   Hunger Express was founded in 2018 by a group of friends who
                   shared a passion for exceptional coffee and food. What started
-                  as a small coffee shop has grown into one of Peshawar's most
+                  as a small coffee shop has grown into one of Peshawar&apos;s most
                   beloved cafes.
                 </p>
                 <p className="text-gray-700 mb-4">
@@ -47,7 +47,7 @@ export default function AboutPage() {
                   where people could connect, work, and relax.
                 </p>
                 <p className="text-gray-700">
-                  Over the years, we've stayed true to our founding principles
+                  Over the years, we&apos;ve stayed true to our founding principles
                   while continuously evolving to meet the needs of our
                   customers. From sourcing the finest coffee beans to crafting
                   innovative menu items, every decision we make is guided by our
@@ -113,7 +113,7 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Sustainability</h3>
                 <p className="text-gray-600">
-                  We're committed to environmentally responsible practices in
+                  We&apos;re committed to environmentally responsible practices in
                   everything we do.
                 </p>
               </div>
@@ -154,7 +154,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-semibold">Fatima Ali</h3>
                 <p className="text-primary mb-2">Head Chef</p>
                 <p className="text-gray-600 max-w-sm mx-auto">
-                  Fatima's culinary expertise and creativity are behind our
+                  Fatima&apos;s culinary expertise and creativity are behind our
                   delicious and innovative menu offerings.
                 </p>
               </div>
@@ -169,7 +169,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-semibold">Omar Malik</h3>
                 <p className="text-primary mb-2">Master Barista</p>
                 <p className="text-gray-600 max-w-sm mx-auto">
-                  Omar's deep knowledge of coffee and dedication to perfection
+                  Omar&apos;s deep knowledge of coffee and dedication to perfection
                   ensures every cup is exceptional.
                 </p>
               </div>
